@@ -1,0 +1,45 @@
+#test building
+
+["Test", True, 1, 100, 5, "G", None, None]
+
+#growth buildings
+
+["Spichlez", True, 3, 750, 1, "G", None, None]
+["Akwedukt", True, 5, 1250, 2, "G", None, None]
+["Prosty Wiatrak", True, 4, 750, 2, "G", None, None]
+["Sad Owocowy", True, 10, 500, 3, "G", 50, "I"]
+# not only growth, but a little money too
+
+#income buildings
+["Port Towarowy", True, 5, 1250, 150, "I", 2, "G"]
+["Rynek", True, 5, 1000, 100, "I", None, None]
+["Ratusz", False, 3, 1500, 100, "I", None, None]
+# requires rynek to be build
+["Sukiennice", False, 4, 1750, 150, "I", None, None]
+# requires rynek to be build
+["Destylarnia", False, 3, 1000, 250, "I", None, None]
+# requires sad owocowy and akwedukt to be build
+
+#income-and-growth-buildings
+["Port Rybacki", True, 3, 750, 75, "I", 1, "G"]
+
+#defence buildings
+
+["Garnizon", True, 3, 1000, 2, "D", None, None]
+["Straz Miejska", True, 3, 1000, 2, "D", None, None]
+
+#fortification buildings
+
+["Palisada", True, 3, 750, 2, "F", None, None]
+["Mury", False, 5, 2000, 3, "F", None, None]
+#upgrade of palisada
+
+#great_people_and_tech_building
+
+["Szkola", True, 3, 1500, 5, "S", 1, "GP"]
+# gives research and great people points
+
+#major_buildings
+
+["Forge", True, 8, 3500, 350, "I", 3, "S"]
+["Forge Apprentice School", False, 5, 1500, 100, "I", 5, "S"]
