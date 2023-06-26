@@ -1,578 +1,1 @@
-# Civilisation
-
-# klasy - miasto, cywilizacja, budynki, jednostki
-import random
-class Civilisation:
-    def __init__(self, name, leader, money, great_people_points, tech_points):
-        print("A great civilisation has risen")
-        self.name = name
-        self.leader = leader
-        self.money = money
-        self.great_people_points = great_people_points
-        self.tech_points = tech_points
-
-class Building:
-    def __init__(self, name, access, time_to_build, cost):
-        self.name = name
-        self.access = access
-        self.time_to_build = time_to_build
-        self.cost = cost
-        self.growth = 0
-        self.income = 0
-        self.science = 0
-        self.defence = 0
-        self.fortification = 0
-        self.great_people = 0
-        self.upgrade = []
-
-    def add_value(self, number, type):
-        if type  == "G":
-            self.growth += number
-        elif type  == "I":
-            self.income += number
-        elif type == "S":
-            self.science += number
-        elif type  == "D":
-            self.defence += number
-        elif type  == "F":
-            self.fortification += number
-        elif type  == "GP":
-            self.great_people += number
-
-class City:
-    def __init__(self, name):
-        print("The city has been created")
-        self.name = name
-        self.citizens = 1
-        self.citizen_income = 10
-        self.defence = 1
-        self.growth_required = 10
-        self.growth_points_income = 0
-        self.growth = 0
-        self.city_income = 0
-    def populationAction(self):
-        self.growth = self.growth + self.growth_points_income
-        a = self.growth_required
-        if self.growth >= self.growth_required:
-            self.growth = 0
-            self.citizens += 1
-            self.city_income = self.citizen_income * self.citizens
-            self.growth_required = self.growth_required + int(a * 0.1)
-            print("The city has gained a new citizen!")
-
-class Unit:
-    def __init__(self, name, movement, ability):
-        self.name = name
-        self.movement = movement
-        self.mov_remaining = movement
-        self.ability = ability
-        print("{} reporting for duty".format(self.name))
-class Technology:
-    def __init__(self, cost, effect):
-        self.cost = cost
-        if type(effect) == list:
-            self.effect = effect
-        else:
-            print("You must provide description for you technology")
-
-class Teren:
-    def __init__(self, kierunek):
-        self.road = "No Road"
-        self.resources = []
-        self.direction = kierunek
-        self.distance = random.randint(2,6)
-
-        if self.direction == "West":
-            self.name = "Lands to the West"
-        elif self.direction == "South":
-            self.name = "Lands to the South"
-        elif self.direction == "East":
-            self.name = "Lands to the East"
-        else:
-            self.name = "Lands to the North"
-
-        if random.randint(1,9) == 7 or random.randint(1,9) == 8:
-            self.water = "Small River"
-        elif random.randint(1,9) == 9:
-            self.water = "Big River"
-        else:
-            self.water = "None"
-
-    def losowanie_zasobów(self, resource_list):
-        if len(resource_list) <= 3:
-            a = random.randint(1,len(resource_list))
-        else:
-            a = random.randint(1,3)
-        for i in range(a):
-            self.resources = self.resources + [resource_list[i]]
-        for element in self.resources:
-            resource_list.remove(element)
-        return resource_list
-
-    def zakładanie_kolonii(self, kolonista):
-        Kolonia = Colony[self]
-        del kolonista
-        return Kolonia
-
-class Morze(Teren):
-    def __init__(self, kierunek):
-        super(Morze, self).__init__(kierunek)
-        if self.direction == "West":
-            self.name = "Islands to the West"
-        elif self.direction == "South":
-            self.name = "Islands to the South"
-        elif self.direction == "East":
-            self.name = "Islands to the East"
-        else:
-            self.name = "Islands to the North"
-        self.water = "None"
-
-    def losowanie_zasobów(self, marine_resource_list):
-        self.resources = marine_resource_list
-
-class Colony:
-    def __init__(self, Teren):
-        self.colony_resources = Teren.resources
-        self.level = 1
-        if self.colony_resources >= 1:
-            self.resource_1_level = 1
-        else:
-            self.resource_2_level = 0
-        if self.colony_resources >= 2:
-            self.resource_2_level = 1
-        else:
-            self.extraction_level_2 = 0
-        if self.colony_resources >= 3:
-            self.resource_3_level = 1
-        else:
-            self.resource_3_level = 0
-        self.water = Teren.water
-
-
-# lista jednostek (do zrobienia)
-
-
-
-## START HANDLING FILE - Budynki są wczytywane z osobobnego pliku
-
-text_file = open("Budynki.txt", "r")
-lines = text_file.readlines()
-
-def tworzenie_stringu(b):
-    new_string = ""
-    otwarcie_nawiasu = "no"
-    for character in b:
-        if character == '"' or character == '[' or character == ']' or character == "\n":
-            continue
-        elif character == " " and otwarcie_nawiasu == "yes":
-            new_string = new_string + "_"
-        elif character == "{":
-            otwarcie_nawiasu = "yes"
-        elif character == "}":
-            otwarcie_nawiasu = "no"
-        else:
-            new_string = new_string + character
-
-    new_list = new_string.split(", ")
-    if len(new_list) >= 2:
-        if new_list[1] != "None":
-            new_list[1] = new_list[1].split(",_")
-        else:
-            new_list[1] = []
-    return new_list
-
-def tworzenie_objektów_budynki(lista):
-
-    a = str(lista[0]) #name
-    b = list(lista[1]) #rquirement
-    c = int(lista[2]) #cost_time
-    d = int(lista[3]) #cost_money
-    nowy_budynek = Building(a, b, c, d)
-    for i in range(4, len(lista), 2):
-        a = int(lista[i])
-        b = str(lista[i+1])
-        nowy_budynek.add_value(a,b)
-    return nowy_budynek
-
-def tworzenie_budynków (lines):
-    all_buildings = []
-    for element in lines:
-        if element[0] != "#":
-            #print(element)
-            new_list = tworzenie_stringu(element)
-            if len(new_list) >=2:
-                nowy_budynek = tworzenie_objektów_budynki(new_list)
-                all_buildings = all_buildings + [nowy_budynek]
-        else:
-            continue
-    return all_buildings
-
-all_buildings = tworzenie_budynków(lines)
-
-text_file.close()
-
-## KONIEC HANDLING FILE
-
-#Tworzenie świata gry (regiony i ich zasoby)
-
-lista_regionów = ["West", "South", "East", "North"]
-resource_list = ["Wheat", "Grapes", "Iron", "Copper", "Tin", "Potatoes", "Cattle"]
-marine_resource_list = ["Fish", "Whales"]
-
-for i in range(3):
-    a = random.randint(0,3-i)
-    kierunek = lista_regionów[a]
-    region = Teren(kierunek)
-    resource_list = region.losowanie_zasobów(resource_list)
-    del lista_regionów[a]
-    lista_regionów = lista_regionów + [region]
-
-region = Morze(lista_regionów[0])
-region.losowanie_zasobów(marine_resource_list)
-del lista_regionów[0]
-lista_regionów = lista_regionów + [region]
-
-# listy i inne dane potrzebne do działania gry i komend
-
-list_build_orders = ["build", "construct", "zbuduj",
-                     "zbudujmy", "let's build", "lets build", "construction"]
-list_build_buildings_orders = ["building", "buildings", "budynki"]
-list_build_units_orders = ["jednostki", "units","unit", "jednostka"]
-list_build_great_people_orders = ["great people","gp","wielcy ludzie", "great"]
-list_help = ["help", "help!", "pomoc", "hilfe", "pomocy", "assistance"]
-list_of_commands_main = {"data" : "Shows data related to your city or civilisation",
-                         "build" : "you can order construction of units or buildings",
-                         "skip turn" : "skips x turns, chosen by you",
-                         "end turn" : "ends current turn"}
-
-list_of_commands_data = {"City Data, or just city": "Data about your city and buildings build inside it",
-                         "Civilsation Data, or just civ":"Data about your civilisation",
-                         "Buildings Avalible":"Shows what buildings avalible to you ",
-                         "Lands":"Shows your intel about neighbouring lands "}
-
-lista_anulacji = ["cancel", "stop", "no"]
-
-is_building = False
-
-
-#obsługa konstrukcji w mieście
-construction_que = {}
-built_buildings = []
-
-# definiowanie funckcji, czyli co gracz może zrobić w grze
-
-def show_me_data(civ_gracz_1):
-    dn = civ_gracz_1.name
-    dl = civ_gracz_1.leader
-    dm = civ_gracz_1.money
-    dgpp = civ_gracz_1.great_people_points
-    dtp = civ_gracz_1.tech_points
-    return dn, dl, dm, dgpp, dtp
-def show_me_buildings_avalible(all_buildings, built_buildings):  # funkcja do wyświetlania listy nazw dostępnych budynków, czyli zostaną wyświetlone tylko budynki do których gracz ma dostęp
-    avalible_buildings = []
-    for i in range(len(all_buildings)):
-        building_chosen = all_buildings[i]
-        b = len(building_chosen.access)
-        a = len(list(set(building_chosen.access) and set(built_buildings)))
-        if a == b and building_chosen.access != ["Zbudowany"] and building_chosen.cost <= civ_gracz_1.money:
-            avalible_buildings = avalible_buildings + [building_chosen.name]
-        else:
-            continue
-    return avalible_buildings
-def show_me_lands(lista_regionów):
-    print(" ")
-    for element in lista_regionów:
-        # print(element.name)
-        print(f"{element.name}.\nThey are {element.distance} tiles away\nThey have", end=" ")
-        a = len(element.resources)
-        if a == 1:
-            print(f"{element.resources[0]}")
-        else:
-            for i in range(0, len(element.resources) - 1):
-                print(element.resources[i], end=", ")
-            print(f"and {element.resources[i + 1]}")
-        if element.water != "None":
-            print(f"A {element.water.lower()} flows through these lands")
-        print(" ")
-def building_operation_1(a):  # tu jest wybierana kategoria: Mamy do wyboru budowanie wielkich ludzi, jednostek albo budynków
-
-    request = input("What do you want to build? [Category]\nInput:").lower()
-    if request == "buildings" or request == "building":
-        chosen = "buildings"
-        return chosen
-
-    elif request == "help" or request == "help!":
-        print("You have 3 cathegories that you can build stuff from: Unites, Buildings and Great People")
-        chosen = "again"
-        return chosen
-    elif request == "return" or request == "nothing" or request in lista_anulacji:
-        chosen = "we're leaving"
-        return chosen
-    else:
-        print("You can't build anything from your {} category".format(request))
-        chosen = "again"
-        return chosen
-def building_operation_2():
-    a = all_buildings
-    avalible_buildings = show_me_buildings_avalible(a, built_buildings)
-    if len(avalible_buildings) > 0:
-        print("These are the buildings avalible to you:")
-        print(avalible_buildings, sep=", ")
-
-        option = input("Pick a building you want to build\nInput:").lower()
-        if option == "exit" or option == "nothing" or option == "go back to start" or option == "go back":
-            option = "we're leaving"
-
-        if option != "we're leaving":
-            chosen_building = "Can't build shit"
-            for i in range(len(a)):
-                if option == a[i].name.lower():
-                    chosen_building = a[i]
-                else:
-                    continue
-            return chosen_building
-        else:
-            return option
-    else:
-        print("You have no buildings avalible to be build")
-        chosen_building = "Can't build shit"
-        return chosen_building
-def handle_orders_buildings(chosen):
-    if chosen == "buildings":
-        building_chosen = building_operation_2()
-        if building_chosen != "Can't build shit" and building_chosen != "we're leaving":
-            print("We will be building {}".format(building_chosen.name))
-            building_chosen.access = ["Zbudowany"]
-            civ_gracz_1.money = civ_gracz_1.money - building_chosen.cost
-            building_a_building(building_chosen, construction_que)
-            x = 0
-            turn_skip = 0
-        elif building_chosen == "we're leaving" or building_chosen == "Can't build shit":
-            x = 0
-            turn_skip = -1
-        else:
-            print("Ow, I can't build that")
-            x = 1
-            turn_skip = 0
-    elif chosen == "we're leaving":
-        x = 0
-        turn_skip = -1
-
-    return x, turn_skip
-def building_a_building(building_chosen, construction_que):  # kolejka budowania - przyda się póżniej
-    turns_needed = building_chosen.time_to_build
-    newdict = {building_chosen: turns_needed}
-    construction_que = construction_que.update(newdict)
-    return construction_que
-def provide_data_type(order_follow):
-    if order_follow == "civilisation data" or order_follow == "civilisation" or order_follow == "civ" or order_follow == "civ data":
-        dn, dl, dm, dgpp, dtp = show_me_data(civ_gracz_1)
-        print("You have {} gold, {} great people points and {} tech points\n".format(dm, dgpp, dtp))
-    elif order_follow == "city data" or order_follow == "city":
-        print("Your city has {} citizens, and has {} growth points out of {} required for population growth".format(
-            miasto_Gracza.citizens, miasto_Gracza.growth, miasto_Gracza.growth_required))
-        if len(built_buildings) == 0:
-            print(f"Currently there are no buildings in the city")
-        else:
-            print(f"Currently build buildings are: {built_buildings} ")
-    elif order_follow == "avalible buildings" or order_follow == "buildings avalible":
-        print(show_me_buildings_avalible(all_buildings))
-    elif order_follow == "buildings":
-        if len(built_buildings) == 0:
-            print(f"Currently there are no buildings in the city")
-        else:
-            print(f"Currently build buildings are: {built_buildings} ")
-    elif order_follow == "lands" or order_follow == "possible colonies" or order_follow == "tereny" or order_follow == "ziemie":
-        show_me_lands(lista_regionów)
-    else:
-        print("This is not a correct type of data")
-
-def handle_orders(order, timer, all_buildings, built_buildings):
-    turn_skip = 0
-    a = order.lower()
-    x = 0
-    b = len(a.split("_"))
-    if b == 1:
-        if a in list_build_orders:  # sprawdzamy, czy gracz chce coś zbudować - jest na to więcej niż 1 komenda
-            while x != 1:
-                chosen = building_operation_1(a)  # wybieramy jaki budynek chcemy zbudować
-                if chosen != "again" and chosen != "Can't build shit":
-                    x = 1
-                elif chosen == "we're leaving":
-                    x = 1
-                elif chosen == "Can't build shit":
-                    x = 1
-                else:
-                    continue
-            while x != 0:
-                x, turn_skip = handle_orders_buildings(chosen)
-        elif a in list_build_buildings_orders:
-            x = 1
-            while x != 0:
-                chosen = "buildings"
-                x, turn_skip = handle_orders_buildings(chosen)
-
-        elif a in list_help:
-            c = list_of_commands_main.keys()
-            for element in c:
-                a = element
-                b = list_of_commands_main[a]
-                print("{} - {}".format(a,b))
-            print('And remember, you can always write "help"')
-            turn_skip = -1
-        elif a == "data" or a == "info":
-            request = input("What data do you require?\nInput:").lower()
-            provide_data_type(request)
-            turn_skip = -1
-        elif a == "skip turn" or a == "turn skip" or a == "skip":
-            turn_skip = int(input("How many turns would you like to skip?\nInput:"))
-            if turn_skip + timer > turn_limit:
-                print("You can't skip that many turns!")
-                turn_skip = -1
-            elif turn_skip <0:
-                print("You can't skip negative number of turns!")
-                turn_skip = -1
-        elif a == "end turn":
-            pass
-        else:
-            print("This is not a valid command")
-            turn_skip = -1
-        return turn_skip, all_buildings
-    elif b == 2:
-        order_1 = a.split("_")[0]
-        order_follow = a.split("_")[1]
-        if order_1 == "data" or a == "info":
-            provide_data_type(order_follow)
-        else:
-            print("You haven't gave a lawful command")
-            turn_skip = -1
-    else:
-        print("This is not a valid command")
-        turn_skip = -1
-    return turn_skip, all_buildings
-
-def produkcja_miasta(construction_que):
-    finished_list = []
-    a = list(construction_que.keys())
-    list_d = a.copy()
-    for element in list_d:
-        t_remaining = construction_que[element]
-        t_remaining = t_remaining - 1
-        if t_remaining == 0:
-            finished_list = finished_list + [element]
-            construction_que.pop(element)
-        else:
-            construction_que[element] = t_remaining
-    return construction_que, finished_list
-def finalizacja_kontrukcji_budynków(finished_list, built_buildings):
-    constructed_buildings = built_buildings
-    for element in finished_list:
-        constructed_buildings += [element]
-        finished_list.remove(element)
-    return constructed_buildings, finished_list
-def income(built_buildings, civ_gracz_1, miasto_Gracza):
-    f_incum = 0
-    incum = 0
-    for building in built_buildings:
-        f_incum += building.growth
-        incum += building.income
-
-    przychód_z_obywateli = miasto_Gracza.city_income
-    incum += przychód_z_obywateli
-
-    miasto_Gracza.growth += f_incum
-    miasto_Gracza.growth_points_income = f_incum
-
-    miasto_Gracza.income = incum
-    civ_gracz_1.money += incum
-
-    print(f"You gained {incum} cash")
-    print(f"You gain {f_incum} growth points")
-    return civ_gracz_1, miasto_Gracza
-def kolejka_budowania(construction_que):
-    if len(construction_que) > 0:
-        print("Current construction que:")
-        new = list(construction_que.keys())
-        for i in range(len(new)):
-            klucz = new[i]
-            value = construction_que[klucz]
-            print("{}, turns remaing: {} ".format(klucz.name, value))
-    else:
-        print("Currently there's nothing in production")
-
-
-# rozpoczęcie gry
-
-civ_gracz_1 = Civilisation("Polanie", "Jadwiga", 1500, 0, 0)
-miasto_Gracza = City("Kraków")
-
-# gra właściwa
-
-turn_limit = 10
-timer = -20
-skip_turns = False
-
-
-#testing area - start
-
-#testing area - end
-
-while timer <= turn_limit:
-    if skip_turns == False:
-        print(" \n ")
-        turns_remaining = turn_limit - timer
-
-        kolejka_budowania(construction_que)
-
-        print("[{} turns remaining]".format(turns_remaining))
-        print(" ")
-        order = input("Awaiting your instructions:")
-
-        skip, all_buildings = handle_orders(order, timer, all_buildings, built_buildings)
-
-        if skip == -1:
-            end_turn = 0
-        else:
-            end_turn = 1
-            construction_que, finished_list = produkcja_miasta(construction_que)  # tutaj wykorzystamy kolejkę budowania
-
-            built_buildings, finished_list = finalizacja_kontrukcji_budynków(finished_list, built_buildings)
-            civ_gracz_1, miasto_Gracza  = income(built_buildings, civ_gracz_1, miasto_Gracza)
-            miasto_Gracza.populationAction()
-
-        timer = timer + end_turn
-
-        if skip > 1:
-            skip_turns = True
-        else:
-            continue
-    elif skip_turns == True :
-
-        construction_que, finished_list = produkcja_miasta(construction_que)
-
-        built_buildings, finished_list = finalizacja_kontrukcji_budynków(finished_list, built_buildings)
-        civ_gracz_1, miasto_Gracza = income(built_buildings, civ_gracz_1, miasto_Gracza)
-        miasto_Gracza.populationAction()
-
-        end_turn = 1
-        timer = timer + end_turn
-
-        skip = skip - 1
-        if skip == 1:
-            skip_turns = False
-        else:
-            continue
-
-
-
-if timer >= turn_limit:
-    print("This is the end of the game! Barbarians are approaching!")
-
-# zakończenie gry: czy wygraliśmy czy nie
-
-power = 5
-invaders = 6
-if power > invaders:
-    print("You win")
-else:
-    print("You loose")
+# Gra inspirowana serią Civilisation i modami do gier z serii# klasy - miasto, cywilizacja, budynki, jednostkiimport randomclass Civilisation:    def __init__(self, name, leader, money, great_people_points, tech_points):        print("A great civilisation has risen")        self.name = name        self.leader = leader        self.money = money        self.great_people_points = great_people_points        self.tech_points = tech_pointsclass Building:    def __init__(self, name, access, resources, time_to_build, cost):        self.name = name        self.access = access        self.resources_interaction = resources        self.time_to_build = time_to_build        self.cost = cost        self.growth = 0        self.income = 0        self.science = 0        self.defence = 0        self.fortification = 0        self.great_people = 0        self.upgrade = []    def add_value(self, number, type):        if type  == "G":            self.growth += number        elif type  == "I":            self.income += number        elif type == "S":            self.science += number        elif type  == "D":            self.defence += number        elif type  == "F":            self.fortification += number        elif type  == "GP":            self.great_people += number    def resource_input(self, status_of_resources):        self.modifier = 0        for element in self.resources_interaction:            if element in status_of_resources.keys():                self.modifier += 0.1 * status_of_resources[element]class City:    def __init__(self, name):        print("The city has been created")        self.name = name        self.citizens = 1        self.citizen_income = 10        self.defence = 1        self.growth_required = 10        self.growth_points_income = 0        self.growth = 0        self.buildings_income = 0        self.city_income = self.citizen_income * self.citizens        self.resources = []    def populationAction(self):        self.growth = self.growth + self.growth_points_income        a = self.growth_required        if self.growth >= self.growth_required:            self.growth = 0            self.citizens += 1            self.growth_required = self.growth_required + int(a * 0.1)            self.city_income = self.citizen_income * self.citizens            print("The city has gained a new citizen!")    def resource_extraction(self, list_of_colonies):        status_of_resources = {}        for element in list_of_colonies:            new_dict = element.resource_state            status_of_resources.update(new_dict)        return status_of_resourcesclass Unit:    def __init__(self, name, cost, time_to_built, movement):        self.name = name        self.name_lower = name.lower()        self.cost = cost        self.time_to_built = time_to_built        self.movement = movement        self.mov_remaining = movement        self.status = "Avalible"        self.orders = ["Nothing"]    def reporting(self):        print("{} reporting for duty".format(self.name))class Colonist(Unit):    def __init__(self, name, cost, time_to_built, movement):        super(Colonist, self).__init__(name, cost, time_to_built, movement)        self.orders = {"colonising": True, "cancel colonisation": False}        self.direction = "None"    def delete(self, list_of_owned_units):        for i in range(0, len(list_of_owned_units)-1):            element = list_of_owned_units[i]            if type(element) == Colonist:                if element.direction == self.direction:                    del list_of_owned_units[i]                else:                    continue            else:                continue    def colonising(self, Teren, list_of_colonies, list_of_colony_names):        print(f"We are colonising {Teren.name}, yupi!")        new_colony = Colony(Teren)        new_colony.name = new_colony.name_generator(list_of_colony_names)        print(f"We established a new Polis, called {new_colony.name}")        list_of_colonies += [new_colony]        list_of_owned_units.remove(self)    def going_towards_colony_spot(self, Teren):        status = "None"        if Teren.taken == False and Teren.water != "Endless Blue":            self.goal = Teren            self.direction = Teren.direction            self.journey = Teren.distance            self.og_journey = self.journey            self.status = "Traveling to our new home"            if Teren.water == "Small River":                self.journey += 1            elif Teren.water == "Big River":                self.journey += 2            Teren.taken = True            print(f"Your colonists go {Teren.direction}, ETA {self.journey} turns")            self.orders["colonising"] = False            self.orders["cancel colonisation"] = True            return Teren, status        elif Teren.taken == False and Teren.water == "Endless Blue":            print("You have no ships, or they are unavalible - your colonists can't travel thought ocean")            status = "Failure"            return Teren, status        else:            print("You already sent colonists in this direction")            status = "Failure"            return Teren, status    def reaching_colony_spot(self):        self.journey -= self.movement        if self.journey == 0:            print(f"{self.name} - We reached our destination!")            self.colonising(self.goal, list_of_colonies, list_of_colony_names)    def reaching_city(self):        self.journey -= self.movement        if self.journey == 0:            print("Doratliśmy z powrotem do miasta!")            self.status = "Avalible"            self.orders["colonising"] = True    def status(self):        if self.status == "Avalible":            a = random.randint(1,5)            if a == 1:                print("Avalible - Waiting for orders")            elif a == 2:                print("Avalible - Present and accounted for")            elif a == 3:                print("Avalible - Waiting for instructions")            elif a == 4:                print("Avalible - Any orders?")            else:                print("Avalible - I can't wait to found a new home")        if 0 < self.journey:            print(f"We are going {self.direction}, {self.journey} turns to our target")    def colonising_cancel(self):        self.journey = self.og_journey - self.journey        self.goal.taken = False        if self.journey != 0:            print(f"We are going back to the city, {self.journey} turns to our target")            self.status = "Going home"        else:            print("We are staying home")            self.status = "Avalible"            self.orders["colonising"] = True    def execute(self, letter):        status = "Success"        if letter in self.orders.keys(): #["colonising", "cancel colonisation"]            print(f"We recived the order {letter}")            if letter == "colonising":                x = 1                while x == 1:                    goal = input("What area do you want to colonise? South, North, West or East?\nInput:").lower()                    if goal in list_of_destinations.keys():                        kierunek = list_of_destinations[goal]                        sth, status = self.going_towards_colony_spot(kierunek)                        if status != "Failure":                            x = 0                        else:                            continue                    elif goal in lista_anulacji:                        x = 0                    else:                        print("That is not a correct direction")                        x = 1            elif letter == "cancel colonisation":                self.colonising_cancel()                self.orders["cancel colonisation"] = False        else:            print(f"{letter} is not an order I can execute")            status = "Failure"        return status    def move(self):        if self.status == "Traveling to our new home":            self.reaching_colony_spot()        elif self.status == "Going home":            self.reaching_city()        else: #self.status == "Avalible"            passkoloniści1 =Colonist("Koloniści", 500, 5, 1)koloniści2 =Colonist("Koloniści", 500, 5, 1)koloniści3 =Colonist("Koloniści", 500, 5, 1)koloniści4 =Colonist("Koloniści", 500, 5, 1)list_of_units = {"koloniści":[koloniści1, koloniści2, koloniści3, koloniści4]}list_of_owned_units = []class Technology:    def __init__(self, cost, effect):        self.cost = cost        if type(effect) == list:            self.effect = effect        else:            print("You must provide description for you technology")class Teren:    def __init__(self, kierunek):        self.roadwork_cost = None        self.road = "No Road"        self.road_possible_upgrades = {1: "Paths", 2: "Dirt Roads", 3: "Maintained Roads",                                       4: "Stone Roads", 5: "Postal Service Roads", 6: "Imperial Roads"}        self.road_level = 0        self.resources = []        self.direction = kierunek        self.distance = random.randint(2, 6)        self.taken = False        self.roadworks = "No Road Building"        if self.direction == "West":            self.name = "Lands to the West"        elif self.direction == "South":            self.name = "Lands to the South"        elif self.direction == "East":            self.name = "Lands to the East"        else:            self.name = "Lands to the North"        a = random.randint(1, 9)        if a == 6 or a == 7 or a == 8:            self.water = "Small River"            self.water_bridge_cost = 500        elif a == 1 or a == 9:            self.water = "Big River"            self.water_bridge_cost = 1000        else:            self.water = "None"            self.water_bridge_cost = 0    def resource_randomisation(self, resource_list):        if len(resource_list) <= 3:            a = random.randint(1,len(resource_list))        else:            a = random.randint(1,3)        for i in range(a):            self.resources = self.resources + [resource_list[i]]        for element in self.resources:            resource_list.remove(element)        return resource_list    def zakładanie_kolonii(self, kolonista):        kolonia = Colony[self]        del kolonista        return kolonia    def road_cost_status(self):        if self.road_level >= 4:            self.roadwork_cost = 1500 + (self.road_level-3)*750 + self.water_bridge_cost        else:            self.roadwork_cost = 500 + self.road_level * 500 + self.water_bridge_cost    def road_upgrade(self, civ_gracz_1):        self.road_cost_status()        if self.roadworks == "No Road Building":            if civ_gracz_1.money >= self.roadwork_cost:                print(f"We begin the roadworks in the {self.direction}")                self.roadworks = "Road Building"                self.roadwork_time = 3 + self.road_level                civ_gracz_1.money -= self.roadwork_cost            elif civ_gracz_1.money <= self.roadwork_cost:                print("You don't have enough money!")            elif self.road_level == 6:                print("Level 6 is the maximum possible road level")        else:            print("Roadworks are already proceding")    def road_building(self):        if self.roadworks == "Road Building":            self.roadwork_time -= 1            if self.roadwork_time == 0:                self.road_level += 1                self.road = self.road_possible_upgrades[self.road_level]                print(f"Roadworks in {self.direction} are over!")                self.roadworks = "No Road Building"            else:                pass        else:            passclass Morze(Teren):    def __init__(self, kierunek):        super(Morze, self).__init__(kierunek)        if self.direction == "West":            self.name = "Islands to the West"        elif self.direction == "South":            self.name = "Islands to the South"        elif self.direction == "East":            self.name = "Islands to the East"        else:            self.name = "Islands to the North"        self.water = "Endless Blue"    def resource_randomisation(self, marine_resource_list):        self.resources = marine_resource_listclass Colony:    def __init__(self, Teren):        self.colony_resources = Teren.resources        self.level = 1        self.upgrade_cost = 1250        self.upgrade_time_cost = 5        self.land = Teren        self.direction = Teren.direction        self.status = "Avalible"        self.resource_1_level = 0        self.resource_2_level = 0        self.resource_3_level = 0        self.resource_state = {}        self.water = Teren.water        if len(self.colony_resources) >= 1:            self.resource_1_level = 1            self.resource_state.update({self.colony_resources[0]: 1})        if len(self.colony_resources) >= 2:            self.resource_2_level = 1            self.resource_state.update({self.colony_resources[1]: 1})        if len(self.colony_resources) >= 3:            self.resource_3_level = 1            self.resource_state.update({self.colony_resources[2]: 1})        for key in self.resource_state:            print("TEST")            print(f"{key}, {self.resource_state[key]}")    def resource_levels_upgrade(self):        if self.resource_1_level != 0:            self.resource_1_level = self.level            self.resource_state.update({self.colony_resources[0]: self.level})        if self.resource_2_level != 0:            self.resource_1_level = self.level            self.resource_state.update({self.colony_resources[1]: self.level})        if self.resource_3_level != 0:            self.resource_1_level = self.level            self.resource_state.update({self.colony_resources[2]: self.level})        for key in self.resource_state:            print("TEST")            print(f"{key}, {self.resource_state[key]}")    def name_generator(self, list_of_colony_names):        name = input("What we shall name our city?\nIf you write down 'random', we can choose the name for you\nInput:")        nname = name.lower()        if nname == "r" or nname == "random" or nname == "you choose" or nname == "prefab" or nname == "not my problem" or nname == "go away":            a = random.randint(0, len(list_of_colony_names)-1)            self.name = list_of_colony_names[a]            del list_of_colony_names[a]            return self.name        else:            self.name = name            return self.name    def upgrade_process(self, civ_gracz_1):        status = "Failure"        if self.upgrade_cost <= civ_gracz_1.money and self.status == "Avalible" and self.level != 5:            print(f"{self.name} begins its upgrades")            civ_gracz_1.money -= self.upgrade_cost            self.status = "Upgrading"            self.resource_levels_upgrade()            self.upgrade_time = self.upgrade_time_cost            self.upgrade_cost += 1250            self.upgrade_time_cost += 1            status = "Success"        elif self.status != "Avalible":            print("This colony is already upgrading")        elif self.level == 5:            print("Level 5 is the maximum level of a colony")        elif self.upgrade_cost >= civ_gracz_1.money:            print("You don't have enough money for that")        else:            print("Something went horribly wrong! You can't upgrade that colony")        return status    def level_status(self):        if self.status == "Avalible":            print(f"level {self.level}, upgrade will cost {self.upgrade_cost} and take {self.upgrade_time_cost} turns")        else:            print(f"in the process of upgrading from level {self.level} to {self.level+1}, ETA {self.upgrade_time} turns")    def colony_action(self):        self.land.road_building()        if self.status == "Upgrading":            self.upgrade_time -= 1            if self.upgrade_time == 0:                self.level += 1                self.resource_levels_upgrade()                self.status = "Avalible"                print(f"Colony {self.name} has reached level {self.level}")            else:                pass        else:            pass    def colony_output(self):        if self.water == "Small River":            modifier = 1.2        elif self.water == "Big River":            modifier = 1.6        else:            modifier = 1        income = 50 * self.level * modifier        f_income = 1 * self.level * modifier        self.income = income        self.f_income = f_income        return income, f_income    def road_status_river_status(self):        if self.water == self.water == "Small River":            print(f"{self.water} increases the roadworks cost by {self.land.water_bridge_cost}\n")        elif self.water == "Big River":            print(f"{self.water} increases the roadworks cost by {self.land.water_bridge_cost}\n")        else:            print(" ")    def road_status(self):        self.land.road_cost_status()        if self.land.road_level == 0:            print(f"There are no roads to the {self.direction}: road level {self.land.road_level}")            print("This will limit commerce")            print(f"Cost of building the roads is {self.land.roadwork_cost}")            self.road_status_river_status()        else:            print(f"Roads status: level {self.land.road_level}\n{self.land.road} lead to the {self.direction}")            print(f"Cost of upgrading the roads is {self.land.roadwork_cost}")            self.road_status_river_status()## START HANDLING FILE - Budynki są wczytywane z osobobnego plikutext_file = open("Budynki.txt", "r")lines = text_file.readlines()def tworzenie_stringu(b):    new_string = ""    otwarcie_nawiasu = "no"    for character in b:        if character == '"' or character == '[' or character == ']' or character == "\n":            continue        elif character == " " and otwarcie_nawiasu == "yes":            new_string = new_string + "_"        elif character == "{":            otwarcie_nawiasu = "yes"        elif character == "}":            otwarcie_nawiasu = "no"        else:            new_string = new_string + character    new_list = new_string.split(", ")    if len(new_list) >= 2:        if new_list[1] != "None":            new_list[1] = new_list[1].split(",_")        else:            new_list[1] = []        if new_list[2] != "None":            new_list[2] = new_list[2].split(",_")        else:            new_list[2] = []    return new_listdef tworzenie_objektów_budynki(lista):    a = str(lista[0]) #name    b = list(lista[1]) #requirement    c = list(lista[2]) #resources_interactible    d = int(lista[3]) #cost_time    e = int(lista[4]) #cost_money    nowy_budynek = Building(a, b, c, d, e)    for i in range(5, len(lista), 2):        a = int(lista[i])        b = str(lista[i+1])        nowy_budynek.add_value(a,b)    return nowy_budynekdef tworzenie_budynków (lines):    all_buildings = []    for element in lines:        if element[0] != "#":            #print(element)            new_list = tworzenie_stringu(element)            if len(new_list) >=2:                nowy_budynek = tworzenie_objektów_budynki(new_list)                all_buildings = all_buildings + [nowy_budynek]        else:            continue    return all_buildingsall_buildings = tworzenie_budynków(lines)text_file.close()## KONIEC HANDLING FILE#Tworzenie świata gry (regiony i ich zasoby)list_of_destinations_data = ["west", "south", "east", "north"]list_of_destinations = {}lista_regionów = ["West", "South", "East", "North"]resource_list = ["Wheat", "Grapes", "Iron", "Copper", "Tin", "Potatoes", "Cattle"]marine_resource_list = ["Fish", "Whales"]for i in range(3):    a = random.randint(0,3-i)    kierunek = lista_regionów[a]    region = Teren(kierunek)    newdict = {kierunek.lower(): region}    list_of_destinations.update(newdict)    resource_list = region.resource_randomisation(resource_list)    del lista_regionów[a]    lista_regionów = lista_regionów + [region]kierunek = lista_regionów[0]region = Morze(lista_regionów[0])newdict = {kierunek.lower(): region}list_of_destinations.update(newdict)for element in list_of_destinations:    print(element)    print(list_of_destinations[element])region.resource_randomisation(marine_resource_list)del lista_regionów[0]lista_regionów = lista_regionów + [region]# listy i inne dane potrzebne do działania gry i komendlist_build_orders = ["build", "construct", "zbuduj",                     "zbudujmy", "let's build", "lets build", "construction"]list_build_buildings_orders = ["building", "buildings", "budynki"]list_build_units_orders = ["jednostki", "units","unit", "jednostka"]list_build_great_people_orders = ["great people","gp","wielcy ludzie", "great"]list_help = ["help", "help!", "pomoc", "hilfe", "pomocy", "assistance"]instruction = ["Your goal is to defend against barbarian attack.","You can do that either by raising 100 thousand gold or reaching 20 in fortification level","Build buildings, build colonists and settle with them new lands","Colonies gives you more money and growth - and their resources increases output of your buildings","Your city grows with growth points - and bigger city with more citizens increases your output even more"]list_of_commands_main = {"data" : "Shows data related to your city, units, civilisation, technologies, areas near your city and your colonies",                         "build" : "you can order construction of units, great people or buildings",                         "skip turn" : "skips x turns, chosen by you",                         "end turn" : "ends current turn",                         "orders": "If you have avalible units, they will be shown and you can give them orders",                         "help": "gives you a helping hand"}list_of_commands_data = {'"City Data", or just "city"': "Data about your city and buildings build inside it",                         '"Civilsation Data", or just "civ"': "Data about your civilisation",                         '"Buildings Avalible"': "Shows what buildings are avalible to you ",                         '"Lands"': "Shows your intel about neighbouring lands, for example their resources",                         '"Colonies"': "It shows you data about your colonies - their level, their roads and their income",                         '"Buildings"': "Shows all built buildings "}possible_values_of_buildings = {"growth": "How much growth points you get each turn. Growth is used by your city to growth and get more citizens!"                                          "More citizens means more production and some buildings will only be unlocked after reaching certain population size",                                "income": "How much gold you earn per turn",                                "science": "How many science points you get each turn."                                           "Science points are used to buy technologies that unlock upgrades for buildings",                                "defence": "Defence increases your forces, increasing power of your army."                                           "If your army is powerful enough, you can meet the upcoming barbarians in the field",                                "fortification":"Fortifications allow you to wither the storm of barbarian attack behind your walls.",                                "remember": "To defend in your city you need both strong defence and fortifications",                                "great people": "Earned each turn, they allow you to recruit powerful great people! "                                                "They have special abilities to help you, "                                                "for example Great Scientists can build or upgrade an Academy - it increases your income of science points "                                                "They are rare and costly - choose visely"}lista_anulacji = ["cancel", "stop", "no", "cancell", "go back", "return", "nothing", "none"]list_of_colonies = []list_of_colony_names = ["Krakow", "Warsaw", "Wroclaw", "Kielce", "Gdansk"]is_building = False#obsługa konstrukcji w mieścieconstruction_que = {}built_buildings = []# definiowanie funckcji, czyli co gracz może zrobić w grzedef show_me_data(civ_gracz_1):    dn = civ_gracz_1.name    dl = civ_gracz_1.leader    dm = civ_gracz_1.money    dgpp = civ_gracz_1.great_people_points    dtp = civ_gracz_1.tech_points    return dn, dl, dm, dgpp, dtpdef show_me_buildings_avalible(all_buildings, built_buildings):  # funkcja do wyświetlania listy nazw dostępnych budynków, czyli zostaną wyświetlone tylko budynki do których gracz ma dostęp    avalible_buildings = []    avalible_buildings_objects = []    for i in range(len(all_buildings)):        building_chosen = all_buildings[i]        b = len(building_chosen.access)        a = len(list(set(building_chosen.access) and set(built_buildings)))        if a == b and building_chosen.access != ["Zbudowany"] and building_chosen.cost <= civ_gracz_1.money:            avalible_buildings = avalible_buildings + [building_chosen.name]            avalible_buildings_objects = avalible_buildings_objects + [building_chosen]        else:            continue    return avalible_buildings, avalible_buildings_objectsdef show_me_lands(lista_regionów):    print(" ")    for element in lista_regionów:        # print(element.name)        print(f"{element.name}.\nThey are {element.distance} tiles away\nThey have", end=" ")        a = len(element.resources)        if a == 1:            print(f"{element.resources[0]}")        else:            for i in range(0, len(element.resources) - 1):                print(element.resources[i], end=", ")            print(f"and {element.resources[i + 1]}")        if element.water != "None":            print(f"A {element.water.lower()} flows through these lands")        print(" ")def building_operation_1(a):  # tu jest wybierana kategoria: Mamy do wyboru budowanie wielkich ludzi, jednostek albo budynków    request = input("What do you want to build? [Category]\nInput:").lower()    if request == "buildings" or request == "building":        chosen = "buildings"    elif request == "units" or request == "jednostki"  or request == "unit"  or request == "jednostka":        chosen = "units"    elif request == "help" or request == "help!":        print("You have 3 cathegories that you can build stuff from: Unites, Buildings and Great People")        chosen = "again"    elif request == "return" or request == "nothing" or request in lista_anulacji:        chosen = "we're leaving"    else:        print("You can't build anything from your {} category".format(request))        chosen = "again"    return chosendef building_operation_2():    a = all_buildings    all_buildings_names = []    avalible_buildings, avalible_buildings_objects = show_me_buildings_avalible(a, built_buildings)    if len(avalible_buildings) > 0:        print("These are the buildings avalible to you:")        print(avalible_buildings, sep=", ")        option = input("Pick a building you want to build\nInput:").lower()        multi_order = option.split("_")        for i in range(len(avalible_buildings)):            avalible_buildings[i] = avalible_buildings[i].lower()        for i in range(len(all_buildings)):            all_buildings_names += [all_buildings[i].name.lower()] # używam tej wersji, by móc wyświetlać z wielkimi literami, ale przyjmować imput niezależny od wielkości liter        if option == "exit" or option == "nothing" or option == "go back to start" or option == "go back" or option == "cancel" or option == "cancell":            chosen_building = "we're leaving"            return chosen_building        elif option == "help":            print("Here you chose what building you want. Avalible buildings are shown on the screen. You can only build a building type ones"                  "Some buildings might require resources, certain population size, technology or other buildings")            print('For more info about a building, write "info_building", and you get info for chosen building')            print('To learn what values from building mean, write them into "info_x", where x is the value you want to check, like "growth" or "science". "info_values" gives you info about all possible values a building can have')            print("For info about each of the avalible buildings, just write 'info'\n")            chosen_building = "again_info"            return chosen_building        elif option == "info":            print("Values: Growth, Income, Science, Defence, Fortification, Great People")            for element in avalible_buildings_objects:                print(f"{element.name}- {element.growth},{element.income}"                      f",{element.science},{element.defence},{element.fortification}, {element.great_people}")            chosen_building = "again_info"            return chosen_building        elif multi_order[0] == "info":            for i in range(len(a)):                if multi_order[1] == all_buildings[i].name.lower():                    element = all_buildings[i]                    print("Values: Growth, Income, Science, Defence, Fortification, Great People")                    print(f"{element.name} - {element.growth},{element.income},{element.science},"                          f"{element.defence},{element.fortification}, {element.great_people}")            if option.split("_")[1] in possible_values_of_buildings.keys():                print(possible_values_of_buildings[option.split("_")[1]])            elif option.split("_")[1] == "great":                print(possible_values_of_buildings["great people"])            elif option.split("_")[1] == "value":                for key in possible_values_of_buildings:                    print("{} - {}".format(key, possible_values_of_buildings[key]))                print("")            chosen_building = "again_info"            return chosen_building        elif option in avalible_buildings:            chosen_building = "Can't build shit"            for i in range(len(a)):                if option == all_buildings[i].name.lower():                    chosen_building = all_buildings[i]                else:                    continue            return chosen_building        elif (option in all_buildings_names) and (option not in avalible_buildings):            print("You chose a wrong building")            chosen_building = "again"            return chosen_building        else:            print(f'This "{option}" building of yours does not exist')            chosen_building = "again"            return chosen_building    else:        print("You have no buildings avalible to be build")        chosen_building = "Can't build shit"        return chosen_buildingdef handle_orders_building(chosen):    turn_skip = -1    if chosen == "buildings":        building_chosen = building_operation_2()        if building_chosen != "Can't build shit" and building_chosen != "we're leaving" and building_chosen != "again" and building_chosen != "again_info":            print("We will be building {}".format(building_chosen.name))            building_chosen.access = ["Zbudowany"]            civ_gracz_1.money = civ_gracz_1.money - building_chosen.cost            building_a_building(building_chosen, construction_que)            x = 0        elif building_chosen == "we're leaving" or building_chosen == "Can't build shit":            x = 0        elif building_chosen == "again_info":            x = 1        else:            print("Ow, I can't build that")            x = 1    elif chosen == "we're leaving":        x = 0    return x, turn_skipdef building_a_building(building_chosen, construction_que):  # kolejka budowania - przyda się póżniej    turns_needed = building_chosen.time_to_build    newdict = {building_chosen: turns_needed}    construction_que = construction_que.update(newdict)    return construction_quedef upgrading_colonies(list_of_colonies, civ_gracz_1):    status = "NI"    if len(list_of_colonies) >= 1:        print(f"\nYou have {civ_gracz_1.money} cash on hand")        for element in list_of_colonies:            print(f"{element.name}")            element.level_status()            element.road_status()        orders = input("\nWhich colony you want to upgrade? "                       "Or maybe you want to improve roads?\nInput:").lower()        for element in list_of_colonies:            if element.name.lower() == orders:                element.upgrade_process(civ_gracz_1)                status = "Success"            else:                continue        if orders == "roads":            status = "Road Failure"            x = 2            while x == 2:                road_chosen = input("What roads do you want to improve?\nInput:").lower()                for element in list_of_colonies:                    if element.direction.lower() == road_chosen:                        element.land.road_upgrade(civ_gracz_1)                        status = "Road Success"                        x = 0                    else:                        continue                if road_chosen == "help":                    print('To choose a road you want to upgrade, write its direction. '                          'For example, if you want to upgrade roads leading to the east, write "East"')                elif road_chosen in lista_anulacji:                    x = 0                else:                    continue        if orders in list_help:            print('Just write down the name and the colony will start upgrading if you have enough money'                'You can also write down "roads" in order to enter road building')            status = "help"        elif orders in lista_anulacji:            status = "NI"        elif status != "Success" and status != "Road Failure":            print("This is not a right colony")            status = "Failure"        elif status == "Road Failure":            print("This is not a right road")    else:        print("You have no colonies, so you can't upgrade them")        status = "NI"    return statusdef upgrading_buildings(built_buildings):    print("Upgrading buildings isn't yet implemented")def upgrade(list_of_colonies, built_buildings):    x = 1    while x == 1:        orders = input("What do you want to upgrade?\nInput:").lower()        if orders in list_help:            print("You can upgrade your buildings or your colonies")        elif orders == "colonies":            while x == 1:                status = upgrading_colonies(list_of_colonies, civ_gracz_1)                if status == "Success" or status == "NI":                    x = 0                else:                    continue        elif orders == "buildings" or orders == "upgrade buildings" or orders == "upgrade a building":            upgrading_buildings(built_buildings)            x = 0        elif orders in lista_anulacji:            x = 0        else:            print("This is not a correct command")def handle_orders_units():    print("Unit types avalible to you:")    for key in list_of_units:        if len(list_of_units[key]) > 0:            jednostka = list_of_units[key][0]            if jednostka.cost <= civ_gracz_1.money:                print(f"{jednostka.name} - {jednostka.cost}")        else:            continue    chosen_unit = input("What will you build?\nInput:").lower()    if chosen_unit in list_of_units:        unit_to_be_build = list_of_units[chosen_unit][0]        del list_of_units[chosen_unit][0]        print(f"So we will be  building {unit_to_be_build.name}")        newdict = {unit_to_be_build: unit_to_be_build.time_to_built}        construction_que.update(newdict)        civ_gracz_1.money = civ_gracz_1.money - unit_to_be_build.cost        x = 0        turn_skip = -1    elif chosen_unit in lista_anulacji:        x = 0        turn_skip = -1    elif chosen_unit in list_help:        print('Here you build units.'              'You need to write down the unit you want to build'              'or write "cancel" if you want to quit the building menue entirely')        x = 1        turn_skip = -1    else:        print("Something went horribly wrong. But I can't build THAT unit")        x = 1        turn_skip = -1    return x, turn_skipdef provide_data_type(order_follow):    help_needed = "No"    if order_follow == "civilisation data" or order_follow == "civilisation" or order_follow == "civ" or order_follow == "civ data":        dn, dl, dm, dgpp, dtp = show_me_data(civ_gracz_1)        print("You have {} gold, {} great people points and {} tech points\n".format(dm, dgpp, dtp))    elif order_follow == "city data" or order_follow == "city":        print("Your city has {} citizens, and has {} growth points out of {} required for population growth".format(            miasto_Gracza.citizens, miasto_Gracza.growth, miasto_Gracza.growth_required))        print(f"Your income is {miasto_Gracza.city_income+miasto_Gracza.buildings_income},"              f" {miasto_Gracza.buildings_income} from buildings and {miasto_Gracza.city_income} from citizens."              f" Each citizens gives you {miasto_Gracza.citizen_income} income"),        if len(built_buildings) == 0:            print(f"Currently there are no buildings in the city")        else:            print(f"Currently build buildings are: {built_buildings} ")    elif order_follow == "avalible buildings" or order_follow == "buildings avalible":        print(show_me_buildings_avalible(all_buildings))    elif order_follow == "buildings" or order_follow == "buildings built":        if len(built_buildings) == 0:            print(f"Currently there are no buildings in the city")        else:            print(f"Currently build buildings are:")            for element in built_buildings:                print(element.name, end=" ")            print(" ")    elif order_follow == "colonies" or order_follow == "colony" or order_follow == "kolonie":        sum_food = 0        sum_money = 0        for element in list_of_colonies:            sum_food += element.income            sum_money += element.f_income            print(f"{element.name} is a level {element.level} colony in the {element.direction}")            print("The colony provides:")            print(f"{element.income} income and {element.f_income} growth points")            for resource in element.colony_resources:                print(resource, end=" ")        print(f"\ncombined its {sum_money} in income and {sum_food} growth points every turn from colonies")    elif order_follow == "lands" or order_follow == "land" or order_follow == "possible colonies" or order_follow == "tereny" or order_follow == "ziemie":        show_me_lands(lista_regionów)    elif order_follow == "help":        for element in list_of_commands_data.keys():            print(f"{element} - {list_of_commands_data[element]}")        help_needed = "Yes"    else:        print("This is not a correct type of data")    return help_neededdef name_generator(element, dictionary_of_units, dict_of_names):    if element.name in dict_of_names:        dict_of_names[element.name] += 1    else:        dict_of_names.update({element.name: 1})    unit_name = str(element.name) + " " + str(dict_of_names[element.name])    return unit_namedef managing_units(list_of_owned_units, list_of_avalible_units):    dictionary_of_units = {}    dict_of_names = {}    for element in list_of_owned_units:        unit_name = name_generator(element, dictionary_of_units, dict_of_names)        newdict = {unit_name:element}        dictionary_of_units.update(newdict)    for key in dictionary_of_units:        print(f"{key}, status: {dictionary_of_units[key].status}")    x = 1    while x == 1:        unit = input("Pick a unit to give orders:")        if unit in dictionary_of_units.keys():            unit = dictionary_of_units[unit] #od teraz string z inputu zamienia się na jednostkę na której operujemy            print(f"Avalible orders for {unit.name}:")            for element in unit.orders.keys():                if unit.orders[element] == True:                    print(element)            while x == 1:                orders = input("What are your orders?:").lower()                if orders in lista_anulacji:                    x = 0                elif orders in list_help:                    print("Here you are shown the orders that this unit can carry out")                    print("It may be a unit specific action or canceling its current orders")                else:                    status = unit.execute(orders)                    if status != "Failure":                        x = 0                    else:                        continue        elif unit.lower() in lista_anulacji:            x = 0        elif unit.lower() in list_help:            print("You need to pick an avalible unit to give it orders, or a busy unit in order to cancel its current orders")            print("If none are show, it means you can't assign orders to any units, probably you don't have any\n")        else:            print("That's not a unit you can give orders to")def handle_orders(order, timer, all_buildings, built_buildings, list_of_colonies):    turn_skip = 0    a = order.lower()    x = 0    b = len(a.split("_"))    if b == 1:        if a in list_build_orders:  # sprawdzamy, czy gracz chce coś zbudować - jest na to więcej niż 1 komenda            while x != 1:#pętle służą byśmy nie byli "wyrzucani do pulpitu" w przypadku błędu                chosen = building_operation_1(a)  # wybieramy czy chcemy zbudować budynek czy jednostkę                if chosen != "again" and chosen != "we're leaving" and chosen != "Can't build shit":                    x = 1                elif chosen == "we're leaving" or chosen == "Can't build shit":                    x = 1                    turn_skip = -1                else:                    continue            if chosen == "buildings":                while x != 0:                    x, turn_skip = handle_orders_building(chosen)            elif chosen == "units":                while x != 0:                    x, turn_skip = handle_orders_units()        elif a in list_build_buildings_orders:            x = 1            while x != 0:                chosen = "buildings"                x, turn_skip = handle_orders_building(chosen)        elif a == "units" or a == "jednostki":            x = 1            while x != 0:                x, turn_skip = handle_orders_units()        elif a == "manage units" or a == "orders":            managing_units(list_of_owned_units, list_of_avalible_units)            turn_skip = -1        elif a in list_help:            c = list_of_commands_main.keys()            for element in c:                a = element                b = list_of_commands_main[a]                print("{} - {}".format(a,b))            print('And remember, you can always write "help" or cancel if you get stuck')            turn_skip = -1        elif a == "data" or a == "info":            z = 1            while z == 1:                request = input("What data do you require?\nInput:").lower()                help_needed = provide_data_type(request)                if help_needed == "No":                    turn_skip = -1                    z = 0                else:                    continue        elif a == "instrukcja" or a == "instruction" or a == "goal":            for element in instruction:                print(element)        elif a == "skip turn" or a == "turn skip" or a == "skip":            turn_skip = int(input("How many turns would you like to skip?\nInput:"))            if turn_skip + timer > turn_limit:                print("You can't skip that many turns!")                turn_skip = -1            elif turn_skip <0:                print("You can't skip negative number of turns!")                turn_skip = -1        elif a == "upgrade" or a == "upgrades":            upgrade(list_of_colonies, built_buildings)            turn_skip = -1        elif a == "end turn":            pass        else:            print("This is not a valid command")            turn_skip = -1        return turn_skip, all_buildings    elif b == 2:        order_1 = a.split("_")[0]        order_follow = a.split("_")[1]        if order_1 == "data" or a == "info":            provide_data_type(order_follow)        else:            print("You haven't gave a lawful command")            turn_skip = -1    else:        print("This is not a valid command")        turn_skip = -1    return turn_skip, all_buildingsdef produkcja_miasta(construction_que):    finished_list = []    a = list(construction_que.keys())    list_d = a.copy()    for element in list_d:        t_remaining = construction_que[element]        t_remaining = t_remaining - 1        if t_remaining == 0:            finished_list = finished_list + [element]            construction_que.pop(element)        else:            construction_que[element] = t_remaining    return construction_que, finished_listdef finalizacja_kontrukcji_budynków(finished_list, built_buildings, list_of_owned_units):    constructed_buildings = built_buildings    for i in range(len(finished_list)):        element = finished_list[0]        print(f"{element.name} has finished construction")        if type(element) == Building:            constructed_buildings += [element]            del finished_list[0]        else:            element.reporting()            list_of_owned_units += [element]            del finished_list[0]    return constructed_buildings, finished_list, list_of_owned_unitsdef income(built_buildings, civ_gracz_1, miasto_Gracza, status_of_resources, list_of_colonies):    f_incum = 0    incum = 0    for building in built_buildings:        building.resource_input(status_of_resources)        f_incum += building.growth + float(building.growth*building.modifier)        incum += building.income + int(building.income*building.modifier)    miasto_Gracza.buildings_income = incum    przychód_z_obywateli = miasto_Gracza.city_income    incum += przychód_z_obywateli    miasto_Gracza.growth_points_income = f_incum    miasto_Gracza.income = incum    for element in list_of_colonies:        income, f_income = element.colony_output()        incum += income        f_incum += f_income    civ_gracz_1.money += incum    miasto_Gracza.growth += f_incum    print(f"You gained {incum} cash")    print(f"You gain {f_incum} growth points")    return civ_gracz_1, miasto_Graczadef kolejka_budowania(construction_que):    if len(construction_que) > 0:        print("Current construction que:")        new = list(construction_que.keys())        for i in range(len(new)):            klucz = new[i]            value = construction_que[klucz]            print("{}, turns remaing: {} ".format(klucz.name, value))    else:        print("Currently there's nothing in production")def avalible_units_status(list_of_owned_units):    list_of_avalible_units = []    for element in list_of_owned_units:        if element.status == "Avalible":            list_of_avalible_units += [element]        else:            continue    if len(list_of_owned_units) == 0:        print("You have no units avalible")    else:        print(f"You have {len(list_of_owned_units)} units, and {len(list_of_avalible_units)} await your command")    return list_of_avalible_unitsdef colonies_status(list_of_colonies):    if len(list_of_colonies) == 0:        print("You have no colonies")    if len(list_of_colonies) > 0:        for element in list_of_colonies:            print(element.name)def units_action(list_of_owned_units):    for element in list_of_owned_units:        element.move()def colony_status(list_of_colonies):    if len(list_of_colonies) != 0:        a = 0        for element in list_of_colonies:            for i in range(len(element.colony_resources)):                a += 1        if len(list_of_colonies) == 1:            print(f"You have {len(list_of_colonies)} colony")        else:            print(f"You have {len(list_of_colonies)} colonies")        if a == 1:            print(f"Colonies provide 1 resource")        else:            print(f"Colonies provide {a} types of resources")    else:        print("You have no colonies")def check_defence_level(built_buildings):    defence = 0    for building in built_buildings:        defence += (building.self.defence + building.fortification)    return defence# rozpoczęcie gryciv_gracz_1 = Civilisation("Polanie", "Jadwiga", 1500, 0, 0)miasto_Gracza = City("Kraków")# gra właściwaturn_limit = 10timer = -60skip_turns = Falseskip = 0#testing area - start#testing area - endwhile timer <= turn_limit:    if skip_turns == False:        print(" \n ")        turns_remaining = turn_limit - timer        kolejka_budowania(construction_que)        list_of_avalible_units = avalible_units_status(list_of_owned_units)        colony_status(list_of_colonies)        print("[{} turns remaining]".format(turns_remaining))        print(" ")        order = input("Awaiting your instructions:")        skip, all_buildings = handle_orders(order, timer, all_buildings, built_buildings, list_of_colonies)        if skip == -1:            end_turn = 0        else:            end_turn = 1            construction_que, finished_list = produkcja_miasta(construction_que)  # tutaj wykorzystamy kolejkę budowania            status_of_resources = miasto_Gracza.resource_extraction(list_of_colonies)            built_buildings, finished_list, list_of_owned_units = finalizacja_kontrukcji_budynków(finished_list, built_buildings, list_of_owned_units)            civ_gracz_1, miasto_Gracza  = income(built_buildings, civ_gracz_1, miasto_Gracza, status_of_resources, list_of_colonies)            miasto_Gracza.populationAction()            units_action(list_of_owned_units)            for colony in list_of_colonies:                colony.colony_action()        timer = timer + end_turn        if skip > 1:            skip_turns = True        else:            continue    elif skip_turns == True :        construction_que, finished_list = produkcja_miasta(construction_que)        status_of_resources = miasto_Gracza.resource_extraction(list_of_colonies)        built_buildings, finished_list, list_of_owned_units = finalizacja_kontrukcji_budynków(finished_list, built_buildings, list_of_owned_units)        civ_gracz_1, miasto_Gracza = income(built_buildings, civ_gracz_1, miasto_Gracza, status_of_resources, list_of_colonies)        miasto_Gracza.populationAction()        units_action(list_of_owned_units)        for colony in list_of_colonies:            colony.colony_action()        end_turn = 1        timer = timer + end_turn        skip = skip - 1        if skip == 1:            skip_turns = False        else:            continueif timer >= turn_limit:    power = check_defence_level(built_buildings)    print("This is the end of the game! Barbarians are approaching!")    print("They want  100.000 in gold or they will attack")    print("We can survive this if we have defence level equal or greater to 20")    print(f"We have {civ_gracz_1.money} in cash")    x = 1    while x == 1:        a = input("What should we do? 'Pay' or 'Fight?'\nInput:").lower()        if a == 'Pay' or 'Fight':            x = 0        else:            print("Come on. Wrong command")# zakończenie gry: czy wygraliśmy czy nieinvaders = 20defence_status = "None"victory_status = "None"if a == "Pay":    if civ_gracz_1.money >= 100000:        print("Hurray! We paid a King's ransom, but we are safe! "              "Barbarians will not return for a long time")        defence_status = "Paid off"        victory_status = "Success"    else:        "We do not have enough money for the ransom! Barbarians are attacking"        defence_status = "They are attacking!"else:    passif defence_status != "Paid off":    print(" ")    print(f"Barbarians are attacking with {invaders} attack against our {power} defence")    if power >= invaders:        print("You win! Your defences proved too much for attackers to overcome")        victory_status = "Success"    else:        print('You loose! Barbarians are scaling the walls of the city.'              'Thankfully this game is in yuri slice of life genra, barbarians will "only" take all your valuables '              '...and stone')if victory_status == "Success":    print("You won! Your civilisation")else:    print("You failed :(")

@@ -1,46 +1,55 @@
+#Avalible Resources:
+#["Wheat", "Grapes", "Iron", "Copper", "Tin", "Potatoes", "Cattle"]
 #test building
 
-["Test", "None", 1, 100, 5, "G"]
-["Test2", {Test}, 1, 100, 5, "G"]
+["Test", None, {Potatoes, Wheat, Cattle, Iron, Tin}, 1, 100, 5, "G"]
+["Test2", {Test}, None,  1, 100, 5, "G"]
 
 #growth buildings
 
-["Spichlez", None, 3, 750, 1, "G"]
-["Akwedukt", None, 5, 1250, 2, "G"]
-["Prosty Wiatrak", None, 4, 750, 2, "G"]
-["Sad Owocowy", None, 10, 500, 3, "G", 50, "I"]
+["Spichlez", None, {Potatoes, Wheat}, 3, 750, 1, "G"]
+["Akwedukt", None, None, 5, 1250, 2, "G"]
+["Prosty Wiatrak", None, {Wheat}, 4, 750, 2, "G"]
+["Sad Owocowy", None, {Grapes}, 10, 500, 3, "G", 50, "I"]
 # not only growth, but a little money too
 
 #income buildings
-["Port Towarowy", None, 5, 1250, 150, "I", 2, "G"]
-["Rynek", None, 5, 1000, 100, "I"]
-["Ratusz", {Rynek}, 3, 1500, 100, "I"]
+["Tawerna", None, None, 4, 1000, 100, "I"]
+["Port Towarowy", None, None, 5, 1250, 150, "I", 2, "G"]
+["Rynek", None, {Cattle}, 5, 1000, 100, "I"]
+["Ratusz", {Rynek}, None, 3, 1500, 100, "I"]
 # requires rynek to be build
-["Sukiennice", {Rynek}, 4, 1750, 150, "I"]
+["Sukiennice", {Rynek}, None, 4, 1750, 150, "I"]
 # requires rynek to be build
-["Destylarnia", {Sad Owocowy, Akwedukt}, 3, 1000, 250, "I"]
+["Destylarnia", {Sad Owocowy, Akwedukt}, {Potatoes, Wheat, Grapes}, 3, 1000, 250, "I"]
 # requires sad owocowy and akwedukt to be build
 
 #income-and-growth-buildings
-["Port Rybacki", None, 3, 750, 75, "I", 1, "G"]
+["Port Rybacki", None, {Fish, Whales}, 3, 750, 75, "I", 1, "G"]
 
 #defence buildings
 
-["Garnizon", None, 3, 1000, 2, "D"]
-["Straz Miejska", None, 3, 1000, 2, "D"]
+["Garnizon", None, None, 3, 1000, 2, "D"]
+["Straz Miejska", None, None, 3, 1000, 2, "D"]
 
 #fortification buildings
 
-["Palisada", None, 3, 750, 2, "F"]
-["Mury", {Palisada}, 5, 2000, 3, "F"]
+["Palisada", None, None, 3, 750, 2, "F"]
+["Dodatkowa Palisada", {Palisada}, None, 3, 1000, 2, "F"]
+["Niskie Mury", {Palisada}, None, 5, 1250, 3, "F"]
+["Mury", {Niskie Mury}, None, 6, 2000, 4, "F"]
+["Wysokie Mury", {Mury}, None, 10, 5000, 6, "F"]
+["Fosa", {Mury}, None, 5, 1500, 3, "F"]
+
+["Donzon", None, {Wino}, 10, 3000, 5, "F", 100, "I"]
 #upgrade of palisada
 
 #great_people_and_tech_building
 
-["Szkola", True, 3, 1500, 5, "S", 1, "GP"]
+["Szkola", True, None, 3, 1500, 5, "S", 1, "GP"]
 # gives research and great people points
 
 #major_buildings
 
-["Forge", True, 8, 3500, 350, "I", 3, "S"]
-["Forge Apprentice School", {Forge}, 5, 1500, 100, "I", 5, "S"]
+["Forge", True, {Iron, Copper, Tin}, 8, 3500, 350, "I", 3, "S"]
+["Forge Apprentice School", {Forge}, None, 5, 1500, 100, "I", 5, "S"]
